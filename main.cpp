@@ -3,6 +3,43 @@
 
 using namespace std;
 
+void calculaCPF(char cpf[12]){
+    int soma = 0, mult = 11;
+    char digito[2];
+    
+    for(int i = 0; i < 9; i++){
+        soma = soma + ((cpf[i] - '0') * (mult - 1));
+        mult--;
+    }    
+   
+    if((11 - (soma%11)) <= 10)
+        digito[0] = '0' + (11 - (soma%11));
+    else
+        digito[0] = 32;
+
+    soma = 0;
+    mult = 11;
+
+    for(int i = 0; i < 9; i++){
+        soma = soma + ((cpf[i] - '0') * (mult));
+        mult--;
+    }
+
+    soma = soma + ((digito[0] - '0') * 2);
+
+    for(int i = 0; i < 12; i++)
+        printf("%c", cpf[i]);
+
+    printf(" ");
+
+    if((11 - (soma%11)) <= 10)
+        digito[1] = '0' + (11 - (soma%11));
+    else
+        digito[1] = 32;
+
+    printf("%c%c", digito[0], digito[1]);
+}
+
 int main(){
     FILE *fp;
     fp = fopen ("BASEPROJETO.txt", "r");
@@ -25,8 +62,8 @@ int main(){
             linhacnpj++;
         }
         else{
-            for(int c = 0; c < 13; c++)
-                cpf[linhacpf][c] = temp[l][c];
+            for(int c = 0; c < 10; c++)
+                cpf[linhacpf][c] = temp[l][c+3];
 
             linhacpf++;
         }
@@ -46,17 +83,15 @@ int main(){
             linhacnpj++;
         }
         else{
-            for(int c = 0; c < 13; c++)
-                cpf[linhacpf][c] = temp[l][c];
+            for(int c = 0; c < 10; c++)
+                cpf[linhacpf][c] = temp[l][c+3];
 
             linhacpf++;
         }
     }
 
     for(int i = 0; i < 600000; i++){
-        for(int c = 0; c < 13; c++)
-            printf("%c", cnpj[i][c]);
-        
+        calculaCPF(cpf[i]);
         printf("\n");
     }
 
