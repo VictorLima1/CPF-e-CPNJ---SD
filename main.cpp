@@ -127,23 +127,41 @@ int main(){
         //thread th1(calculaCPF[i], 1);
         //printf("%d\n", i);
         thread t1(calculaCPF, cpf[i]);
-        t1.join();
         thread t3(calculaCPF, cpf[i + 75000]);
-        t3.join();
         thread t5(calculaCPF, cpf[i + 150000]);
-        t5.join();
         thread t7(calculaCPF, cpf[i + 225000]);
-        t7.join();
+        thread t9(calculaCPF, cpf[i + 300000]);
+        thread t11(calculaCPF, cpf[i + 375000]);
+        thread t13(calculaCPF, cpf[i + 450000]);
+        thread t15(calculaCPF, cpf[i + 525000]);
+
         //calculaCPF(cpf[i]);
         //thread th2(calculaCNPJ, 2); 
         thread t2(calculaCNPJ, cnpj[i]);
-        t2.join();
         thread t4(calculaCNPJ, cnpj[i + 75000]);
-        t4.join();
         thread t6(calculaCNPJ, cnpj[i + 150000]);
-        t6.join();
         thread t8(calculaCNPJ, cnpj[i + 225000]);
+        thread t10(calculaCNPJ, cnpj[i + 300000]);
+        thread t12(calculaCNPJ, cnpj[i + 375000]);
+        thread t14(calculaCNPJ, cnpj[i + 450000]);
+        thread t16(calculaCNPJ, cnpj[i + 525000]);
+
+        t1.join();
+        t2.join();
+        t3.join();
+        t4.join();
+        t5.join();
+        t6.join();
+        t7.join();
         t8.join();
+        t9.join();
+        t10.join();
+        t11.join();
+        t12.join();
+        t13.join();
+        t14.join();
+        t15.join();
+        t16.join();
         //calculaCNPJ(cnpj[i]);
     }
 
