@@ -107,11 +107,14 @@ int main()
 
     auto t_start = std::chrono::high_resolution_clock::now();
     
-    for(int i = 0; i < 600000; i++){
+    for(int i = 0; i < 600000; i = i + 2){
+        //printf("Estou nesse indice: %d\n", i);
         auto h1 = std::async(std::launch::async, calculaCNPJ, &cnpj[i]);
         auto h2 = std::async(std::launch::async, calculaCPF, &cpf[i]);
+        auto h3 = std::async(std::launch::async, calculaCPF, &cnpj[i + 1]);
+        auto h4 = std::async(std::launch::async, calculaCPF, &cpf[i + 1]);
     
-        h1.get(), h2.get();
+        h1.get(), h2.get(), h3.get(), h4.get();
     }
 
     auto t_end = std::chrono::high_resolution_clock::now();
