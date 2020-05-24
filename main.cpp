@@ -1,16 +1,19 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <thread>
+#include <future>
+#include <mutex>
+#include <iostream>
 #include <chrono>
+#include <iostream>
+#include <fstream>
+#include <string>
 #include <ctime>
 
 using namespace std;
 
-void calculaCNPJ(char *cnpj){
+void calculaCNPJ(string *cnpj){
     int soma = 0, mult = 5;
 
     for(int i = 0; i < 12; i++){
-        soma = soma + ((cnpj[i] - '0') * mult);
+        soma = soma + ((cnpj -> at(i) - '0') * mult);
         mult--;
         if(mult < 2)
             mult = 9;
@@ -21,12 +24,14 @@ void calculaCNPJ(char *cnpj){
     if(num >= 10)
         num = 0;
 
-    cnpj[12] = num + '0';
+    string s(1, num + '0');
+
+    cnpj -> append(s);
 
     mult = 6, soma = 0;
 
     for(int i = 0; i < 13; i++){
-        soma = soma + ((cnpj[i] - '0') * mult);
+        soma = soma + ((cnpj -> at(i) - '0') * mult);
         mult--;
         if(mult < 2)
             mult = 9;
@@ -37,14 +42,16 @@ void calculaCNPJ(char *cnpj){
     if(num >= 10)
         num = 0;
 
-    cnpj[13] = num + '0';
+    string t(1, num + '0');
+
+    cnpj -> append(t);
 }
 
-void calculaCPF(char* cpf){
+void calculaCPF(string *cpf){
     int soma = 0, mult = 11;
 
-    for(int i = 0; i < 9; i++){
-        soma = soma + ((cpf[i] - '0') * (mult - 1));
+    for(int i = 3; i < 12; i++){
+        soma = soma + ((cpf -> at(i) - '0') * (mult - 1));
         mult--;
     }
     
@@ -53,89 +60,74 @@ void calculaCPF(char* cpf){
     if(num >= 10)
         num = 0;
 
-    mult = 11, soma = 0;
-    
-    cpf[9] = num + '0';
+    string s(1, num + '0');
 
-    for(int i = 0; i < 10; i++){
-        soma = soma + ((cpf[i] - '0') * (mult));
+    cpf -> append(s);
+
+    mult = 11, soma = 0;
+
+    for(int i = 3; i < 13; i++){
+        soma = soma + ((cpf -> at(i) - '0') * (mult));
         mult--;
     }
 
     num = 11 - (soma % 11);
+
     if(num >= 10)
         num = 0;
 
-    cpf[10] = num + '0';
+    string t(1, num + '0');
+
+    cpf -> append(t);
 }
 
-int main(){
-    FILE *fp;
-    fp = fopen ("BASEPROJETO.txt", "r");
-
-    //pthread_t threads[16]; 
-    static char temp[1200000][13], cpf[600000][13], cnpj[600000][14];
-
-    int linhacnpj = 0, linhacpf = 0;
-
-    for(int l = 0; l < 1200000; l++){
-        for(int c = 0; c < 13; c++)
-            fscanf(fp, "%c", temp[l]+c);
-    }
-
-    fclose(fp);
-
-    
-
-    for(int l = 0; l < 1200000; l++){
-        if(temp[l][0] >= '0' && temp[l][0] <= '9'){
-            for(int c = 0; c < 13; c++){
-                cnpj[linhacnpj][c] = temp[l][c];
+int main()
+{
+    string numero;
+    int cnpjcont = 0, cpfcont = 0;
+    static string cpf[600000], cnpj[600000];
+    ifstream myfile ("BASEPROJETO.txt");
+    if (myfile.is_open())
+    {
+        while ( getline (myfile,numero) )
+        {
+            char primeiro = numero.at(0);
+            if(primeiro >= '0' && primeiro <= '9'){
+                cnpj[cnpjcont] = numero;
+                cnpjcont++;
+            }
+            else{
+                cpf[cpfcont] = numero;
+                cpfcont++;
             }
 
-            linhacnpj++;
         }
-        else{
-            for(int c = 3; c < 13; c++){
-                cpf[linhacpf][c - 3] = temp[l][c];
-            }
-
-            linhacpf++;
-        }
+        myfile.close();
     }
 
-    std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
-
+    
     for(int i = 0; i < 600000; i++){
-        calculaCPF(cpf[i]);
-        calculaCNPJ(cnpj[i]);
+        auto h1 = std::async(std::launch::async, calculaCNPJ, &cnpj[i]);
+        auto h2 = std::async(std::launch::async, calculaCPF, &cpf[i]);
+    
+        h1.get(), h2.get();
     }
-
 
     auto t_end = std::chrono::high_resolution_clock::now();
-    printf("%f", (std::chrono::duration<double, std::milli>(t_end-t_start).count())/1000);
+    printf("Tempo de execução: %.2f segundos\n", (std::chrono::duration<double, std::milli>(t_end-t_start).count())/1000);
 
-    
-    FILE *fo;
-    fo = fopen ("CALCULADOS.txt", "w+");
+    ofstream saida ("CALCULADOS.txt");
+    if (saida.is_open())
+    {
+        for(int i = 0; i < 600000; i++)
+            saida << cpf[i] << endl;
+            
+        for(int i = 0; i < 600000; i++)
+            saida << cnpj[i] << endl;
 
-    for(int i = 0; i < 600000; i++){
-	    for(int j = 0; j < 11; j++){
-	        fprintf(fo, "%c", cpf[i][j]);
-	    }
-
-        fprintf(fo,"\n", cpf[i][11]);
-	}
-
-    for(int i = 0; i < 600000; i++){
-	    for(int j = 0; j < 14; j++){
-	        fprintf(fo, "%c", cnpj[i][j]);
-	    }
-
-        fprintf(fo,"\n", cnpj[i][14]);
-	}
-
+        saida.close();
+    }
 
     return 0;
 }
