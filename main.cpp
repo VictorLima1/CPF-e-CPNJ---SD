@@ -73,7 +73,7 @@ int main(){
     FILE *fp;
     fp = fopen ("BASEPROJETO.txt", "r");
 
-    pthread_t threads[16]; 
+    //pthread_t threads[16]; 
     static char temp[1200000][13], cpf[600000][13], cnpj[600000][14];
 
     int linhacnpj = 0, linhacpf = 0;
@@ -84,6 +84,8 @@ int main(){
     }
 
     fclose(fp);
+
+    
 
     for(int l = 0; l < 1200000; l++){
         if(temp[l][0] >= '0' && temp[l][0] <= '9'){
@@ -105,43 +107,14 @@ int main(){
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
 
-    for(int i = 0; i < 75000; i++){
-        thread t1(calculaCPF, cpf[i]);
-        thread t3(calculaCPF, cpf[i + 75000]);
-        thread t5(calculaCPF, cpf[i + 150000]);
-        thread t7(calculaCPF, cpf[i + 225000]);
-        thread t9(calculaCPF, cpf[i + 300000]);
-        thread t11(calculaCPF, cpf[i + 375000]);
-        thread t13(calculaCPF, cpf[i + 450000]);
-        thread t15(calculaCPF, cpf[i + 525000]);
-
-        thread t2(calculaCNPJ, cnpj[i]);
-        thread t4(calculaCNPJ, cnpj[i + 75000]);
-        thread t6(calculaCNPJ, cnpj[i + 150000]);
-        thread t8(calculaCNPJ, cnpj[i + 225000]);
-        thread t10(calculaCNPJ, cnpj[i + 300000]);
-        thread t12(calculaCNPJ, cnpj[i + 375000]);
-        thread t14(calculaCNPJ, cnpj[i + 450000]);
-        thread t16(calculaCNPJ, cnpj[i + 525000]);
-
-        t1.join();
-        t2.join();
-        t3.join();
-        t4.join();
-        t5.join();
-        t6.join();
-        t7.join();
-        t8.join();
-        t9.join();
-        t10.join();
-        t11.join();
-        t12.join();
-        t13.join();
-        t14.join();
-        t15.join();
-        t16.join();
+    for(int i = 0; i < 600000; i++){
+        calculaCPF(cpf[i]);
+        calculaCNPJ(cnpj[i]);
     }
 
+
+    auto t_end = std::chrono::high_resolution_clock::now();
+    printf("%f", (std::chrono::duration<double, std::milli>(t_end-t_start).count())/1000);
 
     
     FILE *fo;
@@ -152,7 +125,7 @@ int main(){
 	        fprintf(fo, "%c", cpf[i][j]);
 	    }
 
-        fprintf(fo,"\n", cpf[i][13]);
+        fprintf(fo,"\n", cpf[i][11]);
 	}
 
     for(int i = 0; i < 600000; i++){
@@ -163,8 +136,6 @@ int main(){
         fprintf(fo,"\n", cnpj[i][14]);
 	}
 
-    auto t_end = std::chrono::high_resolution_clock::now();
-    printf("%f", (std::chrono::duration<double, std::milli>(t_end-t_start).count())/1000);
 
     return 0;
 }
