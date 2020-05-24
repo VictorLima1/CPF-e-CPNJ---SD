@@ -10,7 +10,6 @@ void calculaCNPJ(char *cnpj){
     int soma = 0, mult = 5;
 
     for(int i = 0; i < 12; i++){
-        //int num = cpf[i] - '0';
         soma = soma + ((cnpj[i] - '0') * mult);
         mult--;
         if(mult < 2)
@@ -27,7 +26,6 @@ void calculaCNPJ(char *cnpj){
     mult = 6, soma = 0;
 
     for(int i = 0; i < 13; i++){
-        //int num = cpf[i] - '0';
         soma = soma + ((cnpj[i] - '0') * mult);
         mult--;
         if(mult < 2)
@@ -40,24 +38,12 @@ void calculaCNPJ(char *cnpj){
         num = 0;
 
     cnpj[13] = num + '0';
-
-    /*FILE *fo;
-    fo = fopen ("CNPJ.txt", "a");
-
-	for(int j = 0; j < 14; j++)
-	   fprintf(fo, "%c", cnpj[j]); 
-
-    fprintf(fo,"\n");
-
-    fclose(fo);*/
-
 }
 
 void calculaCPF(char* cpf){
     int soma = 0, mult = 11;
 
     for(int i = 0; i < 9; i++){
-        //int num = cpf[i] - '0';
         soma = soma + ((cpf[i] - '0') * (mult - 1));
         mult--;
     }
@@ -72,7 +58,6 @@ void calculaCPF(char* cpf){
     cpf[9] = num + '0';
 
     for(int i = 0; i < 10; i++){
-        //int num = cpf[i] - '0';
         soma = soma + ((cpf[i] - '0') * (mult));
         mult--;
     }
@@ -88,7 +73,7 @@ int main(){
     FILE *fp;
     fp = fopen ("BASEPROJETO.txt", "r");
 
-    pthread_t threads[4]; 
+    pthread_t threads[16]; 
     static char temp[1200000][13], cpf[600000][13], cnpj[600000][14];
 
     int linhacnpj = 0, linhacpf = 0;
@@ -117,15 +102,10 @@ int main(){
         }
     }
 
-    /*thread t1(calculaCPF, cpf[0]);
-    t1.join();*/
-
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
 
     for(int i = 0; i < 75000; i++){
-        //thread th1(calculaCPF[i], 1);
-        //printf("%d\n", i);
         thread t1(calculaCPF, cpf[i]);
         thread t3(calculaCPF, cpf[i + 75000]);
         thread t5(calculaCPF, cpf[i + 150000]);
@@ -135,8 +115,6 @@ int main(){
         thread t13(calculaCPF, cpf[i + 450000]);
         thread t15(calculaCPF, cpf[i + 525000]);
 
-        //calculaCPF(cpf[i]);
-        //thread th2(calculaCNPJ, 2); 
         thread t2(calculaCNPJ, cnpj[i]);
         thread t4(calculaCNPJ, cnpj[i + 75000]);
         thread t6(calculaCNPJ, cnpj[i + 150000]);
@@ -162,7 +140,6 @@ int main(){
         t14.join();
         t15.join();
         t16.join();
-        //calculaCNPJ(cnpj[i]);
     }
 
 
@@ -173,16 +150,21 @@ int main(){
     for(int i = 0; i < 600000; i++){
 	    for(int j = 0; j < 11; j++){
 	        fprintf(fo, "%c", cpf[i][j]);
-            //printf("%c", cpf[i][j]);
 	    }
 
         fprintf(fo,"\n", cpf[i][13]);
 	}
 
-    std::clock_t c_end = std::clock();
+    for(int i = 0; i < 600000; i++){
+	    for(int j = 0; j < 14; j++){
+	        fprintf(fo, "%c", cnpj[i][j]);
+	    }
+
+        fprintf(fo,"\n", cnpj[i][14]);
+	}
+
     auto t_end = std::chrono::high_resolution_clock::now();
     printf("%f", (std::chrono::duration<double, std::milli>(t_end-t_start).count())/1000);
-
 
     return 0;
 }
